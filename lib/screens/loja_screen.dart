@@ -4,6 +4,10 @@ import '../database/database_helper.dart';
 import '../models/carrinho.dart';
 import '../models/produto.dart';
 import 'carrinho_screen.dart';
+import 'usuarios_screen.dart';
+import 'produtos_admin_screen.dart';
+import 'pedidos_screen.dart';
+import 'home_screen.dart';
 
 class LojaScreen extends StatefulWidget {
   const LojaScreen({super.key});
@@ -36,9 +40,40 @@ class _LojaScreenState extends State<LojaScreen> {
   void _recarregar() =>
       setState(() => _produtos = DatabaseHelper.instance.listarProdutos());
 
+  Future<void> _abrir(Widget tela) async {
+    Navigator.pop(context);
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => tela));
+    if (mounted) _recarregar();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (DatabaseHelper.instance.usuarioAtual == null) {
+      return const HomeScreen();
+    }
     return Scaffold(
+      drawer: Drawer(child: SafeArea(child: ListView(children: [
+        UserAccountsDrawerHeader(
+          decoration: const BoxDecoration(color: Colors.black),
+          accountName: Text(DatabaseHelper.instance.usuarioAtual?.nome ?? ''),
+          accountEmail: Text(DatabaseHelper.instance.usuarioAtual?.email ?? ''),
+          currentAccountPicture: const CircleAvatar(child: Icon(Icons.person))),
+        ListTile(leading: const Icon(Icons.receipt_long),
+          title: Text(DatabaseHelper.instance.usuarioAtual?.isAdmin == true ? 'Todos os pedidos' : 'Meus pedidos'),
+          onTap: () => _abrir(const PedidosScreen())),
+        if (DatabaseHelper.instance.usuarioAtual?.isAdmin == true) ...[
+          ListTile(leading: const Icon(Icons.people_outline), title: const Text('Gerenciar usuários'),
+            onTap: () => _abrir(const UsuariosScreen())),
+          ListTile(leading: const Icon(Icons.inventory_2_outlined), title: const Text('Gerenciar produtos'),
+            onTap: () => _abrir(const ProdutosAdminScreen())),
+        ],
+        const Divider(),
+        ListTile(leading: const Icon(Icons.logout), title: const Text('Sair'), onTap: () {
+          DatabaseHelper.instance.sair();
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const HomeScreen()), (_) => false);
+        }),
+      ]))),
       appBar: AppBar(
         title: const Text(
           'NOKIS',

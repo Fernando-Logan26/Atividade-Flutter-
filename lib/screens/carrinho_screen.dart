@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/carrinho.dart';
 import '../database/database_helper.dart';
-import '../models/usuario.dart';
 
 String moeda(int centavos) =>
     'R\$ ${(centavos / 100).toStringAsFixed(2).replaceAll('.', ',')}';
@@ -19,31 +18,8 @@ class _CarrinhoScreenState extends State<CarrinhoScreen> {
     final carrinho = Carrinho.instance;
     if (carrinho.itens.isEmpty || _salvando) return;
     try {
-      final usuarios = await DatabaseHelper.instance.listarUsuarios();
-      if (!mounted) return;
-      if (usuarios.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cadastre um usuário antes de finalizar.'),
-          ),
-        );
-        return;
-      }
-      final usuario = await showDialog<Usuario>(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: const Text('Selecione o comprador'),
-          children: usuarios
-              .map(
-                (u) => SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context, u),
-                  child: Text(u.nome),
-                ),
-              )
-              .toList(),
-        ),
-      );
-      if (usuario?.id == null || !mounted) return;
+      final usuario = DatabaseHelper.instance.usuarioAtual;
+      if (usuario?.id == null) throw StateError('Faça login para finalizar.');
       setState(() => _salvando = true);
       final quantidades = {
         for (final item in carrinho.itens) item.produto.id!: item.quantidade,
@@ -52,7 +28,6 @@ class _CarrinhoScreenState extends State<CarrinhoScreen> {
         usuarioId: usuario!.id!,
         quantidades: quantidades,
       );
-      carrinho.limpar();
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Pedido #$id finalizado!')));
@@ -104,6 +79,10 @@ class _CarrinhoScreenState extends State<CarrinhoScreen> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          IconButton(
+                            tooltip: 'Remover item',
+                            onPressed: () => carrinho.alterarQuantidade(item.produto.id!, 0),
+                            icon: const Icon(Icons.delete_outline)),
                           IconButton(
                             onPressed: () => carrinho.alterarQuantidade(
                               item.produto.id!,

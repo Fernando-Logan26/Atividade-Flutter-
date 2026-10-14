@@ -196,7 +196,7 @@ class _ProdutosAdminScreenState extends State<ProdutosAdminScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Excluir produto?'),
         content: Text(
-          'Deseja excluir ${produto.nome}? Produtos vinculados a pedidos anteriores não podem ser excluídos.',
+          'Deseja excluir ${produto.nome}? Os pedidos anteriores serão preservados.',
         ),
         actions: [
           TextButton(
@@ -219,7 +219,7 @@ class _ProdutosAdminScreenState extends State<ProdutosAdminScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Não é possível excluir um produto usado em pedidos. Edite seu estoque para zero.',
+              'Não foi possível excluir o produto. Tente novamente.',
             ),
           ),
         );
@@ -229,6 +229,10 @@ class _ProdutosAdminScreenState extends State<ProdutosAdminScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (DatabaseHelper.instance.usuarioAtual?.isAdmin != true) {
+      return Scaffold(appBar: AppBar(title: const Text('Acesso restrito')),
+        body: const Center(child: Text('Somente administradores podem acessar esta tela.')));
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,

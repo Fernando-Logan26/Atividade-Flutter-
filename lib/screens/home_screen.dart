@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'cadastro_screen.dart';
-import 'usuarios_screen.dart';
-import 'loja_screen.dart';
-import 'pedidos_screen.dart';
-import 'produtos_admin_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -38,68 +35,34 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               const Text(
-                'GERENCIAMENTO DE USUÁRIOS',
+                'SEU ESTILO, SUA IDENTIDADE',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white70, letterSpacing: 2),
               ),
               const SizedBox(height: 30),
               ElevatedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LojaScreen()),
-                ),
-                icon: const Icon(Icons.shopping_bag_outlined),
-                label: const Text('ENTRAR NA LOJA'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PedidosScreen()),
-                ),
-                icon: const Icon(Icons.receipt_long),
-                label: const Text('HISTÓRICO DE PEDIDOS'),
-                style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ProdutosAdminScreen(),
-                  ),
-                ),
-                icon: const Icon(Icons.inventory_2_outlined),
-                label: const Text('GERENCIAR PRODUTOS'),
-                style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CadastroScreen()),
-                ),
-                icon: const Icon(Icons.person_add_alt_1),
-                label: const Text('CADASTRAR USUÁRIO'),
+                onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen())),
+                icon: const Icon(Icons.login),
+                label: const Text('LOGIN'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(18),
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                ),
+                  padding: const EdgeInsets.all(18), backgroundColor: Colors.white,
+                  foregroundColor: Colors.black),
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const UsuariosScreen()),
-                ),
-                icon: const Icon(Icons.people_outline),
-                label: const Text('LISTAR USUÁRIOS'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(18),
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white),
-                ),
+                onPressed: () async {
+                  final criou = await Navigator.push<bool>(context,
+                    MaterialPageRoute(builder: (_) => const CadastroScreen()));
+                  if (criou == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Cadastro realizado! Entre com seu e-mail e senha.')));
+                  }
+                },
+                icon: const Icon(Icons.person_add_alt_1),
+                label: const Text('NOVO CADASTRO'),
+                style: OutlinedButton.styleFrom(padding: const EdgeInsets.all(18),
+                  foregroundColor: Colors.white, side: const BorderSide(color: Colors.white)),
               ),
             ],
           ),

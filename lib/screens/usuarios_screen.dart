@@ -65,7 +65,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Confirmar exclusão'),
-        content: Text('Excluir ${usuario.nome}?'),
+        content: Text('Excluir ${usuario.nome}? Os pedidos já finalizados serão preservados e desvinculados desta conta.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -96,6 +96,10 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (DatabaseHelper.instance.usuarioAtual?.isAdmin != true) {
+      return Scaffold(appBar: AppBar(title: const Text('Acesso restrito')),
+        body: const Center(child: Text('Somente administradores podem acessar esta tela.')));
+    }
     final filtrados = usuarios.where((u) {
       final termo = pesquisa.toLowerCase();
       return u.nome.toLowerCase().contains(termo) ||
@@ -153,7 +157,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
                             child: Icon(Icons.person, color: Colors.white),
                           ),
                           title: Text(u.nome),
-                          subtitle: Text('${u.email}\n${u.telefone}'),
+                          subtitle: Text('${u.email}\n${u.telefone} • ${u.isAdmin ? 'Admin' : 'Cliente'}'),
                           isThreeLine: true,
                           trailing: PopupMenuButton<String>(
                             onSelected: (opcao) {
